@@ -1,0 +1,14 @@
+{
+  "name": "Fahrzeitrechner",
+  "short_name": "Fahrzeit",
+  "description": "Berechnet die Fahrzeit aus Strecke und Durchschnittsgeschwindigkeit.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0284c7",
+  "lang": "de",
+  "icons": [
+    {"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

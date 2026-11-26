@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="description" content="Ein einfacher installierbarer Fahrzeitrechner.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <title>Fahrzeitrechner</title>
+  <style>
+    :root{color-scheme:light dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f1f5f9;color:#18212f}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;padding:24px;display:grid;place-items:center}
+    main{width:min(100%,520px)} .hero{background:linear-gradient(135deg,#075985,#0284c7);color:#fff;border-radius:22px;padding:24px;margin-bottom:18px;box-shadow:0 12px 35px #0284c733}
+    h1{margin:0 0 6px;font-size:28px}.sub{margin:0;opacity:.9}.card{background:#fff;border:1px solid #dbe3ed;border-radius:20px;padding:20px;box-shadow:0 6px 22px #0f172a12}
+    label{display:block;font-weight:700;margin:14px 0 7px}.field{display:flex;align-items:center;border:1px solid #bac7d6;border-radius:12px;overflow:hidden;background:#fff}
+    input{width:100%;border:0;padding:14px;font-size:18px;outline:none;background:transparent;color:#111827}.unit{padding:0 14px;color:#64748b;font-weight:600;white-space:nowrap}
+    button{width:100%;margin-top:20px;padding:15px;border:0;border-radius:13px;background:#0284c7;color:#fff;font-size:17px;font-weight:750;cursor:pointer}
+    button:focus,input:focus{outline:3px solid #7dd3fc;outline-offset:2px}.result{margin-top:18px;padding:18px;border-radius:15px;background:#eff6ff;border:1px solid #bfdbfe}
+    .result small,.detail{color:#475569}.big{font-size:29px;font-weight:800;color:#075985;margin-top:4px}.detail{margin-top:8px;font-size:14px}.error{color:#b91c1c;margin-top:12px;font-weight:600}
+    #install{background:#475569;display:none}.footer{font-size:12px;color:#64748b;text-align:center;margin-top:14px}
+    @media(prefers-color-scheme:dark){:root{background:#020617;color:#e5edf6}.card{background:#111827;border-color:#334155}.field{background:#0f172a;border-color:#475569}input{color:#f8fafc}.unit,.detail,.result small,.footer{color:#cbd5e1}.result{background:#0c2940;border-color:#075985}.big{color:#7dd3fc}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero"><h1>🚗 Fahrzeitrechner</h1><p class="sub">Strecke und Durchschnittsgeschwindigkeit eingeben.</p></section>
+  <section class="card">
+    <form id="calc">
+      <label for="distance">Strecke</label><div class="field"><input id="distance" type="number" inputmode="decimal" min="0.1" step="0.1" value="250"><span class="unit">km</span></div>
+      <label for="speed">Durchschnittsgeschwindigkeit</label><div class="field"><input id="speed" type="number" inputmode="decimal" min="0.1" step="0.1" value="120"><span class="unit">km/h</span></div>
+      <button type="submit">Fahrzeit berechnen</button><button id="install" type="button">App installieren</button>
+      <div id="error" class="error" role="alert"></div>
+      <div class="result" aria-live="polite"><small>Voraussichtliche Fahrzeit</small><div id="result" class="big"></div><div id="detail" class="detail"></div></div>
+    </form>
+  </section>
+  <div class="footer">Offline-fähige Progressive Web App</div>
+</main>
+<script>
+const d=document.querySelector('#distance'),s=document.querySelector('#speed'),r=document.querySelector('#result'),detail=document.querySelector('#detail'),err=document.querySelector('#error');
+function calc(){let km=Number(d.value),v=Number(s.value);err.textContent='';if(!Number.isFinite(km)||!Number.isFinite(v)||km<=0||v<=0){err.textContent='Bitte positive Werte eingeben.';r.textContent='–';detail.textContent='';return}km=Math.min(km,1000000);v=Math.min(v,10000);const total=Math.round(km/v*60),h=Math.floor(total/60),m=total%60;r.textContent=(h?h+' Std. ':'')+m+' Min.';detail.textContent=km.toLocaleString('de-DE')+' km bei durchschnittlich '+v.toLocaleString('de-DE')+' km/h'}
+document.querySelector('#calc').addEventListener('submit',e=>{e.preventDefault();calc()});d.addEventListener('input',calc);s.addEventListener('input',calc);calc();
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));
+let deferred;const install=document.querySelector('#install');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;install.style.display='block'});install.addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;install.style.display='none'});
+</script>
+</body>
+</html>
